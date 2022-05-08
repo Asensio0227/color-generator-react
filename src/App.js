@@ -1,94 +1,95 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react'
 import SingleColor from './SingleColor';
 import Navbar from './Navbar';
-import Loading from './loading';
+import ErrorBoundary from './ErrorBoundary';
 
-import Values from 'values.js'
+import Values from 'values.js';
 
 const App = () => {
-  const [color, setColor] = useState({ info: '', number: 0 });
-  const [list, setList] = useState([]);
-  const [isloading, setIsLoading] = useState(false);
-  const [iserror, setIsError] = useState(false);
+  const [color, setColor] = useState({ text: '', count: '' });
+  const [list, setList] = useState(new Values('#28cab2').all(10));
+  const [isError, setIsError] = useState(false);
 
-  const handleChange = (e) => { 
-    const name=e.target.name;
+  const handleChange = (e) => {
+    const name = e.target.name;
     const value = e.target.value;
     setColor({ ...color, [name]: value });
   }
-  
-  const handleSubmit=(e)=>{
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    if (color.info && color.number) {
+    let number = parseInt(color.count);
+    if (number < 10) {
+      number = 10;
+    }
+    if (number > 20) {
+      number = 20;
+    }
+    if (color.text && color.count) {
       try {
-        const colors = new Values(color.info).all(color.number);
-        setList((color) => {
-          return { ...color, colors }
-        });
-        setIsLoading(false);
-        color.info('');
-        color.number(0);
+        const colors = new Values(color.text).all(number);
+        setList(colors);
+        setColor({ text: '', count: '' });
       } catch (error) {
         setIsError(true);
-        setIsLoading(false)
         console.log(error);
       }
     } else {
-      console.log('hello please enter value');
+      console.log('hello peopl');
     }
-  }
-  
-  if (isloading) {
-    return(
-      <main>
-        <section className="section-center">
-          <Loading/>
-        </section>
-      </main>
-    )
-  }
+  };
 
   return (
     <>
       <Navbar />
-      <section className="container">
-        <h2>color generators</h2>
-        <form className="form" onSubmit={handleSubmit}>
+      <ErrorBoundary>
+        <section className="container">
+        <form onSubmit={handleSubmit} className="form">
+          <h3>color generator</h3>
           <div className="control">
-            <label htmlFor="amount">Number of colors : </label>
+            <label htmlFor="count">Number of colors : </label>
             <input
-              type="number"
-              name='amount'
+              type="number" 
+              name="count"
               placeholder='10'
-              className={`${iserror ? 'error' : null}`}
-              id='amount'
-              value={color.info}
+              className={`${isError ? 'error' : null}`}
+              value={color.count}
               onChange={handleChange}
-            />
+              />
           </div>
           <div className="control">
-            <label htmlFor="amount">hex color : </label>
+            <label htmlFor="text">hex colors : </label>
             <input
-              type="text"
-              name='amount'
-              placeholder='#f158'
-              className={`${iserror ? 'error' : null}`}
-              id='amount'
-              value={color.number}
+              type="text" 
+              name="text"
+              placeholder='#f15025'
+              className={`${isError ? 'error' : null}`}
+              value={color.text}
               onChange={handleChange}
-            />
+              />
           </div>
-          <button className="submit-btn" type='submit'>
+          <button className="submit-btn" type="submit">
             submit
           </button>
         </form>
-        <article className="colors">
-          {list.map((color, index, hexColor) => {
-            return <SingleColor key={index} {...color} hexColor={hexColor.index} index={index}/>
-          })}
-        </article>
       </section>
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <section className="colors">
+        {
+          list.map((color, index) => {
+            return (
+              <SingleColor
+                key={index}
+                index={index}
+                {...color}
+                hexColor={color.hex}
+              />
+            )
+          })
+        }
+      </section>
+      </ErrorBoundary>
     </>
   )
 }
