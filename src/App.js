@@ -35,7 +35,7 @@ const App = () => {
         console.log(error);
       }
     } else {
-      console.log('hello peopl');
+      console.log('hello people');
     }
   };
 
